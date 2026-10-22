@@ -1,0 +1,85 @@
+data_date,category,amisp,installed,installed_ftd
+2026-10-08,Commercial,GENUS,48711,35
+2026-10-08,Commercial,GMR,112697,52
+2026-10-08,Government Connection,GENUS,8648,0
+2026-10-08,Government Connection,GMR,12194,19
+2026-10-08,Industrial,GENUS,2047,2
+2026-10-08,Industrial,GMR,13639,20
+2026-10-09,Commercial,GENUS,48785,74
+2026-10-09,Commercial,GMR,112771,74
+2026-10-09,Government Connection,GENUS,8750,102
+2026-10-09,Government Connection,GMR,12229,35
+2026-10-09,Industrial,GENUS,2052,5
+2026-10-09,Industrial,GMR,13650,11
+2026-10-10,Commercial,GENUS,48805,20
+2026-10-10,Commercial,GMR,112803,32
+2026-10-10,Government Connection,GENUS,8750,0
+2026-10-10,Government Connection,GMR,12240,11
+2026-10-10,Industrial,GENUS,2052,0
+2026-10-10,Industrial,GMR,13654,4
+2026-10-11,Commercial,GENUS,48859,54
+2026-10-11,Commercial,GMR,112803,0
+2026-10-11,Government Connection,GENUS,8873,123
+2026-10-11,Government Connection,GMR,12242,2
+2026-10-11,Industrial,GENUS,2070,18
+2026-10-11,Industrial,GMR,13656,2
+2026-10-12,Commercial,GENUS,48850,-9
+2026-10-12,Commercial,GMR,112855,52
+2026-10-12,Government Connection,GENUS,8873,0
+2026-10-12,Government Connection,GMR,12285,43
+2026-10-12,Industrial,GENUS,2070,0
+2026-10-12,Industrial,GMR,13664,8
+2026-10-13,Commercial,GENUS,48930,80
+2026-10-13,Commercial,GMR,113020,165
+2026-10-13,Government Connection,GENUS,8919,46
+2026-10-13,Government Connection,GMR,12317,32
+2026-10-13,Industrial,GENUS,2074,4
+2026-10-13,Industrial,GMR,13684,20
+2026-10-14,Commercial,GENUS,49003,73
+2026-10-14,Commercial,GMR,113216,196
+2026-10-14,Government Connection,GENUS,8964,45
+2026-10-14,Government Connection,GMR,12361,44
+2026-10-14,Industrial,GENUS,2075,1
+2026-10-14,Industrial,GMR,13705,21
+2026-10-15,Commercial,GENUS,49041,38
+2026-10-15,Commercial,GMR,113300,84
+2026-10-15,Government Connection,GENUS,9028,64
+2026-10-15,Government Connection,GMR,12386,25
+2026-10-15,Industrial,GENUS,2076,1
+2026-10-15,Industrial,GMR,13722,17
+2026-10-16,Commercial,GENUS,49138,97
+2026-10-16,Commercial,GMR,113398,98
+2026-10-16,Government Connection,GENUS,9139,111
+2026-10-16,Government Connection,GMR,12399,13
+2026-10-16,Industrial,GENUS,2093,17
+2026-10-16,Industrial,GMR,13752,30
+2026-10-17,Commercial,GENUS,49156,18
+2026-10-17,Commercial,GMR,113486,88
+2026-10-17,Government Connection,GENUS,9138,-1
+2026-10-17,Government Connection,GMR,12408,9
+2026-10-17,Industrial,GENUS,2095,2
+2026-10-17,Industrial,GMR,13773,21
+2026-10-18,Commercial,GENUS,49271,115
+2026-10-18,Commercial,GMR,113508,22
+2026-10-18,Government Connection,GENUS,9247,109
+2026-10-18,Government Connection,GMR,12410,2
+2026-10-18,Industrial,GENUS,2113,18
+2026-10-18,Industrial,GMR,13776,3
+2026-10-19,Commercial,GENUS,49271,0
+2026-10-19,Commercial,GMR,113555,47
+2026-10-19,Government Connection,GENUS,9247,0
+2026-10-19,Government Connection,GMR,12423,13
+2026-10-19,Industrial,GENUS,2113,0
+2026-10-19,Industrial,GMR,13793,17
+2026-10-20,Commercial,GENUS,49280,9
+2026-10-20,Commercial,GMR,113573,18
+2026-10-20,Government Connection,GENUS,9249,2
+2026-10-20,Government Connection,GMR,12423,0
+2026-10-20,Industrial,GENUS,2116,3
+2026-10-20,Industrial,GMR,13796,3
+2026-10-21,Commercial,GENUS,49280,0
+2026-10-21,Commercial,GMR,113617,44
+2026-10-21,Government Connection,GENUS,9250,1
+2026-10-21,Government Connection,GMR,12458,35
+2026-10-21,Industrial,GENUS,2118,2
+2026-10-21,Industrial,GMR,13813,17

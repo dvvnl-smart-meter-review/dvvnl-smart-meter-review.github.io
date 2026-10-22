@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>DVVNL Smart Meter Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@400&display=swap">
+<link rel="stylesheet" href="site.css?v=202610221455">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>window.DASH_DATASETS = ['billing_latest', 'billing_trend', 'collection_latest', 'eesl_latest', 'kpi_daily', 'netmeter_latest', 'nsc_daily', 'priority_latest', 'priority_trend', 'sp_latest']; window.DASH_VERSION = "202610221455";</script>
+<script src="dash-shim.js?v=202610221455"></script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.dv{font-family:var(--font-anthropic-sans);display:flex;flex-direction:column;gap:var(--cds-gap-lg);font-variant-numeric:tabular-nums}
+.dv-head h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0;text-wrap:balance}
+.dv-take{color:var(--color-fg-muted);margin:var(--cds-gap-xs) 0 0;max-width:76ch;line-height:1.5}
+.dv-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr));gap:var(--cds-gap-md)}
+.dv-tile{font:inherit;text-align:left;color:var(--color-fg);background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:flex;flex-direction:column;gap:var(--cds-gap-xs);min-width:0;cursor:pointer}
+.dv-tile:hover{border-color:var(--cds-chart-axis)}
+.dv-tile:focus-visible,.dv-tabs button:focus-visible,.dv-pills button:focus-visible{outline:2px solid var(--cds-chart-axis);outline-offset:2px}
+.dv-lbl-t{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.dv-big{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);line-height:1.15}
+.dv-sub{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.dv-good{color:var(--color-ok)}.dv-bad{color:var(--color-bad)}
+.dv-tabs{display:flex;gap:var(--cds-gap-xs);overflow-x:auto;border-bottom:1px solid var(--color-border-line);scrollbar-width:thin}
+.dv-tabs button{font:inherit;font-size:var(--cds-font-size-body);color:var(--color-fg-muted);background:transparent;border:0;border-bottom:2px solid transparent;padding:var(--cds-pad-sm) var(--cds-pad-md);cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+.dv-tabs button[aria-selected="true"]{color:var(--color-fg);border-bottom-color:var(--color-fg);font-weight:var(--cds-font-weight-medium)}
+.dv-sec{display:flex;flex-direction:column;gap:var(--cds-gap-md)}
+.dv-sec h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0}
+.dv-sec-sub{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin:0}
+.dv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,24rem),1fr));gap:var(--cds-gap-md)}
+.dv-card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:flex;flex-direction:column;gap:var(--cds-gap-sm);min-width:0}
+.dv-card h3{font-size:var(--cds-font-size-body);font-weight:var(--cds-font-weight-medium);margin:0}
+.dv-note{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin:0}
+.dv-chart{position:relative;min-height:12rem}
+.dv-chart svg{display:block}
+.dv-pills{display:flex;flex-wrap:wrap;gap:var(--cds-gap-xs)}
+.dv-pills button{font:inherit;font-size:var(--cds-font-size-caption);color:var(--color-fg);background:transparent;border:1px solid var(--color-border-line);border-radius:999px;padding:var(--cds-pad-xs) var(--cds-pad-sm);cursor:pointer}
+.dv-pills button[aria-pressed="true"]{background:var(--color-fg);color:var(--color-bg);border-color:var(--color-fg)}
+.dv-legend{display:flex;flex-wrap:wrap;gap:var(--cds-gap-md);font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);margin-bottom:var(--cds-gap-xs)}
+.dv-legend span{display:inline-flex;align-items:center;gap:var(--cds-gap-xs)}
+.dv-sw{display:inline-block;width:.625rem;height:.625rem;border-radius:2px;flex:none}
+.dv-chart text.dv-lbl{font-size:var(--cds-font-size-caption);fill:var(--color-fg)}
+.dv-chart text.dv-val,.dv-chart text.dv-tick{font-size:var(--cds-font-size-caption);fill:var(--color-fg-muted)}
+.dv-tip{position:absolute;z-index:2;background:var(--cds-surface-popover);border:1px solid var(--cds-border);border-radius:var(--cds-radius);box-shadow:var(--cds-shadow-popover);padding:var(--cds-pad-xs) var(--cds-pad-sm);font-size:var(--cds-font-size-caption);pointer-events:none;white-space:nowrap}
+.dv-tip-h{color:var(--cds-text-secondary);margin-bottom:2px}
+.dv-tip-l{display:flex;align-items:center;gap:var(--cds-gap-xs)}
+.dv-tw{overflow-x:auto;max-height:28rem;overflow-y:auto}
+.dv-t{width:100%;border-collapse:collapse;font-size:var(--cds-font-size-caption)}
+.dv-t th{position:sticky;top:0;background:var(--color-panel);text-align:left;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);padding:var(--cds-pad-xs) var(--cds-pad-sm);border-bottom:1px solid var(--color-border-line);white-space:nowrap}
+.dv-t td{padding:var(--cds-pad-xs) var(--cds-pad-sm);border-bottom:1px solid var(--color-border-line);white-space:nowrap}
+.dv-t .num{text-align:right}
+.dv .dv-t tr.tot td{font-weight:600}
+.dv-cbar{display:flex;align-items:center;gap:var(--cds-gap-sm);justify-content:flex-end}
+.dv-cbar-t{display:inline-block;width:4.5rem;height:.5rem;border-radius:999px;background:var(--cds-chart-grid);overflow:hidden;flex:none}
+.dv-cbar-f{display:block;height:100%;border-radius:999px;background:var(--cds-chart-muted)}
+.dv-fail{display:flex;align-items:center;justify-content:center;gap:var(--cds-gap-xs);min-height:inherit;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.dv-fail::before{content:"";width:.375rem;height:.375rem;border-radius:50%;background:var(--color-bad)}
+[data-dash-source-state=empty]{color:transparent}
+[data-dash-source-state=refreshing]{opacity:.5;transition:opacity var(--cds-dur-slow)}
+</style>
+
+<div class="dv">
+  <header class="dv-head">
+    <h1>DVVNL Smart Meter Review</h1>
+    <p class="dv-take" id="takeaway">Consumer smart meters installed across DVVNL:
+      <b data-source="headline" data-field="value" data-where="k=sp_cum" data-fmt="num">—</b>
+      (<span data-source="headline" data-field="value" data-where="k=sp_pct" data-fmt="pct">—</span> of scope).
+      New service connections pending with smart meter:
+      <b data-source="headline" data-field="value" data-where="k=nsc_total" data-fmt="num">—</b>, of which
+      <span data-source="headline" data-field="value" data-where="k=nsc_beyond" data-fmt="num">—</span> beyond time.
+      Smart meter bills generated for <span data-source="headline" data-field="value" data-where="k=bl_pct" data-fmt="pct">—</span> of reads received.</p>
+  </header>
+
+  <div class="dv-tiles" id="tiles">
+    <button type="button" class="dv-tile" data-tab="amisp" id="tile-amisp">
+      <span class="dv-lbl-t">Consumer meters installed (cum.)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=sp_cum" data-fmt="num">—</span>
+      <span class="dv-sub">+<span data-source="headline" data-field="value" data-where="k=sp_day" data-fmt="num">—</span> on <span data-source="headline" data-field="date" data-where="k=sp_day" data-fmt="date">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="dt" id="tile-dt">
+      <span class="dv-lbl-t">DT meters installed (cum.)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=dt_cum" data-fmt="num">—</span>
+      <span class="dv-sub"><span data-source="headline" data-field="value" data-where="k=dt_pct" data-fmt="pct">—</span> of scope · +<span data-source="headline" data-field="value" data-where="k=dt_day" data-fmt="num">—</span> on the day</span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="nsc" id="tile-nsc">
+      <span class="dv-lbl-t">NSC pendency (smart meter)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=nsc_total" data-fmt="num">—</span>
+      <span class="dv-sub"><span data-source="headline" data-field="change" data-where="k=nsc_total" data-fmt="signed" data-good="down">—</span> vs previous day · <span data-source="headline" data-field="date" data-where="k=nsc_total" data-fmt="date">—</span></span>
+      <span class="dv-sub">Smart meters installed: <b data-source="headline" data-field="value" data-where="k=nsc_inst" data-fmt="num">—</b> on <span data-source="headline" data-field="date" data-where="k=nsc_inst" data-fmt="date">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="priority" id="tile-priority">
+      <span class="dv-lbl-t">Priority consumers installed on the day</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=pr_day" data-fmt="num">—</span>
+      <span class="dv-sub">Govt + industrial + commercial, <span data-source="headline" data-field="date" data-where="k=pr_day" data-fmt="date">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="eesl" id="tile-eesl">
+      <span class="dv-lbl-t">EESL meters replaced (cum.)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=eesl_cum" data-fmt="num">—</span>
+      <span class="dv-sub"><b data-source="headline" data-field="value" data-where="k=eesl_pct" data-fmt="pct">—</b> of scope installed · +<span data-source="headline" data-field="value" data-where="k=eesl_day" data-fmt="num">—</span> on the day</span>
+      <span class="dv-sub">Balance <span data-source="headline" data-field="value" data-where="k=eesl_bal" data-fmt="num">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="billing" id="tile-billing">
+      <span class="dv-lbl-t">Smart meter bills generated (Oct)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=bl_bills" data-fmt="num">—</span>
+      <span class="dv-sub"><span data-source="headline" data-field="value" data-where="k=bl_pct" data-fmt="pct">—</span> billed · SMS <span data-source="headline" data-field="value" data-where="k=sms_pct" data-fmt="pct">—</span> · <span data-source="headline" data-field="date" data-where="k=bl_bills" data-fmt="date">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="netmeter" id="tile-netmeter">
+      <span class="dv-lbl-t">Smart net meters billed</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=nm_pct" data-fmt="pct">—</span>
+      <span class="dv-sub">of <span data-source="headline" data-field="value" data-where="k=nm_conn" data-fmt="num">—</span> connections · <span data-source="headline" data-field="date" data-where="k=nm_pct" data-fmt="date">—</span></span>
+    </button>
+  </div>
+
+  <div class="dv-tabs" role="tablist" aria-label="Report" id="tabs">
+    <button type="button" role="tab" id="tab-amisp" data-tab="amisp" aria-controls="amisp" aria-selected="true">AMISP progress</button>
+    <button type="button" role="tab" id="tab-dt" data-tab="dt" aria-controls="dt" aria-selected="false">DT meter installation</button>
+    <button type="button" role="tab" id="tab-nsc" data-tab="nsc" aria-controls="nsc" aria-selected="false">New connection</button>
+    <button type="button" role="tab" id="tab-priority" data-tab="priority" aria-controls="priority" aria-selected="false">Priority consumer</button>
+    <button type="button" role="tab" id="tab-eesl" data-tab="eesl" aria-controls="eesl" aria-selected="false">EESL replacement</button>
+    <button type="button" role="tab" id="tab-billing" data-tab="billing" aria-controls="billing" aria-selected="false">Billing and SMS</button>
+    <button type="button" role="tab" id="tab-netmeter" data-tab="netmeter" aria-controls="netmeter" aria-selected="false">Net meter billing</button>
+  </div>
+
+  <section class="dv-sec" id="amisp" role="tabpanel" aria-labelledby="tab-amisp">
+    <h2>AMISP progress (daily single pager)</h2>
+    <p class="dv-sec-sub">As on <span data-source="sp_latest" data-field="as_on" data-row="0" data-fmt="date">—</span>. GMR: Agra, Mathura, Firozabad, Etah, Aligarh. GENUS: Banda, Jhansi, Kanpur.</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="sp-pct-card">
+        <h3>Installation progress vs scope, GMR and GENUS</h3>
+        <p class="dv-note">Meters installed as a share of LOA scope, by meter category.</p>
+        <div class="dv-chart dash-skeleton" id="sp-pct" data-source="sp_latest"></div>
+      </div>
+      <div class="dv-card" id="sp-day-card">
+        <h3>Consumer meters installed per day, DVVNL</h3>
+        <p class="dv-note">From each day's single pager. Builds up as daily reports are added.</p>
+        <div class="dv-chart dash-skeleton" id="sp-day" data-source="kpi_daily"></div>
+      </div>
+    </div>
+    <div class="dv-card" id="sp-table-card">
+      <h3>Single pager detail</h3>
+      <div class="dv-pills" id="sp-pills" role="group" aria-label="Cluster">
+        <button type="button" data-v="DVVNL" aria-pressed="true">DVVNL total</button>
+        <button type="button" data-v="GMR" aria-pressed="false">GMR (Cluster 1)</button>
+        <button type="button" data-v="GENUS" aria-pressed="false">GENUS (Cluster 2)</button>
+      </div>
+      <div class="dv-tw">
+        <table class="dv-t" id="sp-table" data-source="sp_latest" data-row-key="item">
+          <thead><tr>
+            <th data-field="item">Meter category</th>
+            <th class="num" data-field="scope">LOA scope</th>
+            <th class="num" data-field="inst_ftd">Installed (day)</th>
+            <th class="num" data-field="inst_month">This month</th>
+            <th class="num" data-field="inst_cum">Installed (cum.)</th>
+            <th class="num" data-field="progress_pct">% of scope</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="dt" role="tabpanel" aria-labelledby="tab-dt" hidden>
+    <h2>DT meter installation (daily single pager)</h2>
+    <p class="dv-sec-sub">As on <span data-source="sp_latest" data-field="as_on" data-row="0" data-fmt="date">—</span>. Distribution transformer meters, up to 100 KVA and above 100 KVA.</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="dt-pct-card">
+        <h3>DT meters installed vs scope, GMR and GENUS</h3>
+        <p class="dv-note">Meters installed as a share of LOA scope.</p>
+        <div class="dv-chart dash-skeleton" id="dt-pct" data-source="sp_latest"></div>
+      </div>
+      <div class="dv-card" id="dt-day-card">
+        <h3>DT meters installed per day, DVVNL</h3>
+        <p class="dv-note">From each day's single pager. Builds up as daily reports are added.</p>
+        <div class="dv-chart dash-skeleton" id="dt-day" data-source="kpi_daily"></div>
+      </div>
+    </div>
+    <div class="dv-card" id="dt-table-card">
+      <h3>DT meters by AMISP</h3>
+      <div class="dv-tw">
+        <table class="dv-t" id="dt-table" data-source="sp_latest" data-row-key="item">
+          <thead><tr>
+            <th data-field="item">AMISP and capacity</th>
+            <th class="num" data-field="team">Teams</th>
+            <th class="num" data-field="scope">LOA scope</th>
+            <th class="num" data-field="stock">Stock at store</th>
+            <th class="num" data-field="indexed">Indexed</th>
+            <th class="num" data-field="indexing_pct">Indexing %</th>
+            <th class="num" data-field="inst_ftd">Installed (day)</th>
+            <th class="num" data-field="inst_month">This month</th>
+            <th class="num" data-field="inst_cum">Installed (cum.)</th>
+            <th class="num" data-field="commissioned">Commissioned in MDM</th>
+            <th class="num" data-field="progress_pct">% of scope</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="nsc" role="tabpanel" aria-labelledby="tab-nsc" hidden>
+    <h2>New service connections (Jhatpat)</h2>
+    <p class="dv-sec-sub">Applications waiting for a smart meter, from the daily Jhatpat lists. Latest list: <span data-source="headline" data-field="date" data-where="k=nsc_total" data-fmt="date">—</span>.</p>
+    <div class="dv-pills" id="nsc-pills" role="group" aria-label="AMISP">
+      <button type="button" data-v="DVVNL" aria-pressed="true">DVVNL total</button>
+      <button type="button" data-v="GMR" aria-pressed="false">GMR</button>
+      <button type="button" data-v="GENUS" aria-pressed="false">GENUS</button>
+    </div>
+    <div class="dv-grid">
+      <div class="dv-card" id="nsc-pend-card">
+        <h3>Pendency, within and beyond time</h3>
+        <p class="dv-note">GMR/GENUS split starts 05.10.2026; earlier days are DVVNL totals only.</p>
+        <div class="dv-chart dash-skeleton" id="nsc-pend" data-source="nsc_daily"></div>
+      </div>
+      <div class="dv-card" id="nsc-inst-card">
+        <h3>Meters installed per day</h3>
+        <p class="dv-note">From the AMISP installation files, which arrive the next day. Sundays and holidays run low.</p>
+        <div class="dv-chart dash-skeleton" id="nsc-inst" data-source="nsc_daily"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="priority" role="tabpanel" aria-labelledby="tab-priority" hidden>
+    <h2>Priority consumers</h2>
+    <p class="dv-sec-sub">Installation till <span data-source="priority_latest" data-field="data_date" data-row="0" data-fmt="date">—</span>.</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="pr-pct-card">
+        <h3>Smart meters installed vs scope</h3>
+        <p class="dv-note">Telecom tower figures come from a periodic tower summary, not the daily data. LMV-10 scope equals installed.</p>
+        <div class="dv-chart dash-skeleton" id="pr-pct" data-source="priority_latest"></div>
+      </div>
+      <div class="dv-card" id="pr-day-card">
+        <h3>Installed per day by category</h3>
+        <p class="dv-note">GMR and GENUS combined.</p>
+        <div class="dv-chart dash-skeleton" id="pr-day" data-source="priority_trend"></div>
+      </div>
+    </div>
+    <div class="dv-card" id="pr-table-card">
+      <h3>Priority consumers by AMISP</h3>
+      <div class="dv-tw">
+        <table class="dv-t" id="pr-table" data-source="priority_latest" data-row-key="category,amisp">
+          <thead><tr>
+            <th data-field="category">Category</th>
+            <th data-field="amisp">AMISP</th>
+            <th class="num" data-field="scope">Scope</th>
+            <th class="num" data-field="installed">Installed</th>
+            <th class="num" data-field="pct">% installed</th>
+            <th class="num" data-field="pending">Pending</th>
+            <th class="num" data-field="installed_ftd">On the day</th>
+            <th class="num" data-field="installed_month">This month</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="eesl" role="tabpanel" aria-labelledby="tab-eesl" hidden>
+    <h2>EESL meter replacement (Agra package)</h2>
+    <p class="dv-sec-sub">Progress dated <span data-source="eesl_latest" data-field="data_date" data-row="0" data-fmt="date">—</span>. Scope excludes PDC.</p>
+    <div class="dv-card" id="eesl-table-card">
+      <h3>Progress by circle</h3>
+      <div class="dv-tw">
+        <table class="dv-t" id="eesl-table" data-source="eesl_latest" data-row-key="circle">
+          <thead><tr>
+            <th data-field="circle">Circle</th>
+            <th class="num" data-field="scope_excl_pdc">Scope</th>
+            <th class="num" data-field="progress_cum">Replaced (cum.)</th>
+            <th class="num" data-field="pct">% done</th>
+            <th class="num" data-field="progress_month">This month</th>
+            <th class="num" data-field="progress_ftd">On the day</th>
+            <th class="num" data-field="teams_ftd">Teams</th>
+            <th class="num" data-field="pdc_count">PDC</th>
+            <th class="num" data-field="consumer_denial">Consumer denial</th>
+            <th class="num" data-field="balance">Balance</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="billing" role="tabpanel" aria-labelledby="tab-billing" hidden>
+    <h2>Smart meter billing and bill SMS</h2>
+    <p class="dv-sec-sub">October billing, month to date, up to <span data-source="billing_latest" data-field="as_of_date" data-row="0" data-fmt="date">—</span>. DV01 is GMR, DV02 is GENUS. Billable base is the commissioned smart meters with a billable read on 1 October.</p>
+    <div class="dv-card" id="bl-table-card">
+      <h3>Reads, bills and SMS</h3>
+      <p class="dv-note">Read % = reads received / billable. Billed % = bills / reads. SMS % = bill SMS sent / bills.</p>
+      <div class="dv-tw">
+        <table class="dv-t" id="bl-table" data-source="billing_latest" data-row-key="code">
+          <thead><tr>
+            <th data-field="code">AMISP</th>
+            <th class="num" data-field="billable">Billable</th>
+            <th class="num" data-field="reads">Reads received</th>
+            <th class="num" data-field="read_pct">Read %</th>
+            <th class="num" data-field="read_gap">Read gap</th>
+            <th class="num" data-field="bills">Bills generated</th>
+            <th class="num" data-field="billed_pct">Billed %</th>
+            <th class="num" data-field="exceptions">In exception</th>
+            <th class="num" data-field="read_pending">Pending to bill</th>
+            <th class="num" data-field="sms_sent">SMS sent</th>
+            <th class="num" data-field="sms_not_sent">SMS not sent</th>
+            <th class="num" data-field="sms_pct">SMS %</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="dv-grid">
+      <div class="dv-card" id="bl-day-card">
+        <h3>Bills generated per day</h3>
+        <p class="dv-note">Increase in month-to-date bills from one report to the next. Builds up as daily reports are added.</p>
+        <div class="dv-chart dash-skeleton" id="bl-day" data-source="bills_daily"></div>
+      </div>
+      <div class="dv-card" id="col-table-card">
+        <h3>Collection against smart meter bills</h3>
+        <p class="dv-note">As on <span data-source="collection_latest" data-field="as_of_date" data-row="0" data-fmt="date">—</span>. Amounts in crore rupees.</p>
+        <div class="dv-tw">
+          <table class="dv-t" id="col-table" data-source="collection_latest" data-row-key="code">
+            <thead><tr>
+              <th data-field="code">AMISP</th>
+              <th class="num" data-field="assessment_cr">Assessment (Cr)</th>
+              <th class="num" data-field="paid_count">Paid count</th>
+              <th class="num" data-field="paid_amt_cr">Paid (Cr)</th>
+              <th class="num" data-field="paid_pct">Paid %</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="netmeter" role="tabpanel" aria-labelledby="tab-netmeter" hidden>
+    <h2>Smart net-meter billing</h2>
+    <p class="dv-sec-sub">Status dated <span data-source="netmeter_latest" data-field="report_date" data-row="0" data-fmt="date">—</span>.</p>
+    <div class="dv-card" id="nm-table-card">
+      <h3>Billing by zone</h3>
+      <div class="dv-tw">
+        <table class="dv-t" id="nm-table" data-source="netmeter_latest" data-row-key="zone">
+          <thead><tr>
+            <th data-field="zone">Zone</th>
+            <th class="num" data-field="connections">Connections</th>
+            <th class="num" data-field="billed">Billed</th>
+            <th class="num" data-field="billed_pct">Billed %</th>
+            <th class="num" data-field="unbilled">Unbilled</th>
+            <th class="num" data-field="error">Error</th>
+            <th class="num" data-field="pending">Pending</th>
+            <th class="num" data-field="offcycle_bills">Off-cycle bills</th>
+            <th class="num" data-field="sa_inactive">SA inactive</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('headline', {
+  inputs: ['kpi_daily'],
+  title: 'Headline figures',
+  description: 'Latest value of each headline figure, and its change from the previous date that has a value.',
+  fn: (kpi_daily) => {
+    const cols = {
+      sp_cum: 'SP DVVNL consumer installed (cum)', sp_day: 'SP DVVNL consumer installed (day)',
+      sp_pct: 'SP DVVNL consumer % of scope', pr_day: 'Priority installed on the day (Govt+Ind+Comm)',
+      nsc_total: 'NSC pending - total', nsc_beyond: 'NSC pending - beyond time', nsc_inst: 'NSC meters installed',
+      dt_cum: 'SP DVVNL DT installed (cum)', dt_day: 'SP DVVNL DT installed (day)', dt_pct: 'SP DVVNL DT % of scope',
+      eesl_pct: 'EESL % done',
+      nm_pct: 'Net meter billed %', nm_conn: 'Net meter connections',
+      eesl_cum: 'EESL replaced (cum)', eesl_day: 'EESL replaced (day)', eesl_bal: 'EESL balance',
+      bl_bills: 'DVVNL bills generated', bl_pct: 'DVVNL billed %', sms_pct: 'DVVNL bill SMS %'
+    };
+    return Object.entries(cols).map(([k, col]) => {
+      const pts = kpi_daily.filter(r => r[col] !== '' && r[col] != null).map(r => ({ date: r.date, v: Number(r[col]) }));
+      const last = pts[pts.length - 1], prev = pts[pts.length - 2];
+      return { k, date: last ? last.date : null, value: last ? last.v : null, change: last && prev ? last.v - prev.v : null };
+    });
+  }
+});
+
+dash.calc('bills_daily', {
+  inputs: ['billing_trend'],
+  title: 'Bills generated per day',
+  description: 'Month-to-date bills generated minus the figure in the previous report, for DV01 and DV02.',
+  fn: (billing_trend) => {
+    const out = [];
+    ['DV01', 'DV02'].forEach(code => {
+      const rows = billing_trend.filter(r => r.code === code).sort((a, b) => a.as_of_date < b.as_of_date ? -1 : 1);
+      rows.forEach((r, i) => {
+        if (i === 0) return;
+        out.push({ as_of_date: r.as_of_date, code, new_bills: Number(r.bills) - Number(rows[i - 1].bills) });
+      });
+    });
+    return out;
+  }
+});
+</script>
+
+<script>
+(function () {
+  const C = dash.colors;
+  const AMISP = ['GMR', 'GENUS'];
+  const n = v => (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
+  const fmtNum = v => n(v) == null ? '—' : n(v).toLocaleString('en-IN');
+  const fmtCr = v => n(v) == null ? '—' : n(v).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtPct = v => n(v) == null ? '—' : d3.format('.1%')(n(v));
+  const fmtDate = d => { if (!d) return '—'; const [y, m, dd] = String(d).slice(0, 10).split('-'); return `${dd}.${m}.${y}`; };
+  const shortDate = d => d3.utcFormat('%-d %b')(new Date(d));
+  const fmtSigned = v => n(v) == null ? '—' : (n(v) > 0 ? '+' : '') + n(v).toLocaleString('en-IN');
+  const fmtTick = v => Math.abs(v) >= 100000 ? (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + 'L' : v.toLocaleString('en-IN');
+  const FMT = { num: fmtNum, pct: fmtPct, date: fmtDate, signed: fmtSigned };
+  const TABS = ['amisp', 'dt', 'nsc', 'priority', 'eesl', 'billing', 'netmeter'];
+  const state = { sp: 'DVVNL', nsc: 'DVVNL', tab: 'amisp' };
+
+  function fail(el) { el.replaceChildren(); const d = document.createElement('div'); d.className = 'dv-fail'; d.textContent = 'Failed to load'; el.appendChild(d); }
+  function gate(id, el) {
+    const s = dash.data(id).status;
+    if (s === 'ok') { el.classList.remove('dash-skeleton'); return true; }
+    if (s === 'error') { el.classList.remove('dash-skeleton'); fail(el); } else { el.replaceChildren(); el.classList.add('dash-skeleton'); }
+    return false;
+  }
+
+  function tip(box) { let t = box.querySelector('.dv-tip'); if (!t) { t = document.createElement('div'); t.className = 'dv-tip'; t.hidden = true; box.appendChild(t); } return t; }
+  function showTip(box, ev, title, lines) {
+    const t = tip(box); t.replaceChildren();
+    const h = document.createElement('div'); h.className = 'dv-tip-h'; h.textContent = title; t.appendChild(h);
+    lines.forEach(([color, name, val]) => {
+      const l = document.createElement('div'); l.className = 'dv-tip-l';
+      if (color) { const s = document.createElement('span'); s.className = 'dv-sw'; s.style.background = color; l.appendChild(s); }
+      const nm = document.createElement('span'); nm.textContent = name; l.appendChild(nm);
+      const b = document.createElement('b'); b.textContent = val; l.appendChild(b); t.appendChild(l);
+    });
+    t.hidden = false;
+    const r = box.getBoundingClientRect();
+    let x = ev.clientX - r.left + 12, y = ev.clientY - r.top + 12;
+    if (x + t.offsetWidth > r.width) x = Math.max(0, ev.clientX - r.left - t.offsetWidth - 12);
+    if (y + t.offsetHeight > r.height) y = Math.max(0, ev.clientY - r.top - t.offsetHeight - 12);
+    t.style.left = x + 'px'; t.style.top = y + 'px';
+  }
+  function hideTip(box) { const t = box.querySelector('.dv-tip'); if (t) t.hidden = true; }
+  function legend(el, series, colors) {
+    if (series.length < 2) return;
+    const d = document.createElement('div'); d.className = 'dv-legend';
+    series.forEach((s, i) => { const sp = document.createElement('span'); const sw = document.createElement('i'); sw.className = 'dv-sw'; sw.style.background = colors[i]; sp.append(sw, document.createTextNode(s)); d.appendChild(sp); });
+    el.appendChild(d);
+  }
+  function measure(svg, cls, texts) {
+    const t = svg.append('text').attr('class', cls); let w = 0;
+    texts.forEach(s => { t.text(s); w = Math.max(w, t.node().getComputedTextLength()); });
+    t.remove(); return w;
+  }
+
+  // Grouped horizontal bars of a share (0-1). groups: [{label, values:{series: {v, tip}}}]
+  function hbars(el, groups, series, colors) {
+    el.replaceChildren(); legend(el, series, colors);
+    const W = Math.max(280, el.clientWidth);
+    const rowH = 12, gap = 3, gGap = 12;
+    const svg = d3.select(el).append('svg').attr('width', '100%');
+    const lw = Math.min(measure(svg, 'dv-lbl', groups.map(g => g.label)), W * 0.38);
+    const vw = measure(svg, 'dv-val', ['100.0%']) + 8;
+    const x0 = lw + 10, x = d3.scaleLinear([0, 1], [0, W - x0 - vw]);
+    const gh = series.length * (rowH + gap) - gap, H = groups.length * (gh + gGap);
+    svg.attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    groups.forEach((g, i) => {
+      const y0 = i * (gh + gGap);
+      svg.append('text').attr('class', 'dv-lbl').attr('x', lw).attr('y', y0 + gh / 2).attr('dy', '0.35em').attr('text-anchor', 'end').text(g.label);
+      series.forEach((s, j) => {
+        const d = g.values[s]; if (!d || d.v == null) return;
+        const y = y0 + j * (rowH + gap), w = x(Math.min(1, Math.max(0, d.v)));
+        svg.append('rect').attr('x', x0).attr('y', y).attr('width', x(1)).attr('height', rowH).attr('rx', 4).style('fill', 'var(--cds-chart-grid)');
+        svg.append('rect').attr('x', x0).attr('y', y).attr('width', Math.max(2, w)).attr('height', rowH).attr('rx', 4).style('fill', colors[j])
+          .on('mousemove', ev => showTip(el, ev, g.label, [[colors[j], s + ' ', d.tip]])).on('mouseleave', () => hideTip(el));
+        svg.append('text').attr('class', 'dv-val').attr('x', x0 + w + 6).attr('y', y + rowH / 2).attr('dy', '0.35em').text(fmtPct(d.v));
+      });
+    });
+  }
+
+  // Vertical (stacked) bars per date. rows: [{x: 'YYYY-MM-DD', v: {series: number}}]
+  function vbars(el, rows, series, colors, H) {
+    el.replaceChildren(); legend(el, series, colors);
+    if (!rows.length) return;
+    H = H || 200;
+    const W = Math.max(280, el.clientWidth), m = { t: 8, r: 4, b: 22 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const total = r => series.reduce((a, s) => a + (r.v[s] || 0), 0);
+    const y = d3.scaleLinear([0, d3.max(rows, total) || 1], [H - m.b, m.t]).nice();
+    const ticks = y.ticks(4);
+    m.l = measure(svg, 'dv-tick', ticks.map(fmtTick)) + 8;
+    const x = d3.scaleBand(rows.map(r => r.x), [m.l, W - m.r]).padding(0.25);
+    ticks.forEach(t => {
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(t)).attr('y2', y(t)).style('stroke', 'var(--cds-chart-grid)');
+      svg.append('text').attr('class', 'dv-tick').attr('x', m.l - 6).attr('y', y(t)).attr('dy', '0.35em').attr('text-anchor', 'end').text(fmtTick(t));
+    });
+    const bw = Math.min(32, x.bandwidth());
+    rows.forEach(r => {
+      let acc = 0; const cx = x(r.x) + (x.bandwidth() - bw) / 2;
+      series.forEach((s, j) => {
+        const v = r.v[s]; if (v == null || v <= 0) return;
+        svg.append('rect').attr('x', cx).attr('width', bw).attr('y', y(acc + v)).attr('height', Math.max(0, y(acc) - y(acc + v))).style('fill', colors[j]);
+        acc += v;
+      });
+      svg.append('rect').attr('x', x(r.x)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.b - m.t).style('fill', 'transparent')
+        .on('mousemove', ev => showTip(el, ev, fmtDate(r.x), series.map((s, j) => [series.length > 1 ? colors[j] : null, s + ' ', r.v[s] == null ? '—' : fmtNum(r.v[s])])
+          .concat(series.length > 1 ? [[null, 'Total ', fmtNum(total(r))]] : [])))
+        .on('mouseleave', () => hideTip(el));
+    });
+    const every = Math.ceil(rows.length / Math.max(1, Math.floor((W - m.l) / 52)));
+    rows.forEach((r, i) => {
+      if ((rows.length - 1 - i) % every) return;
+      svg.append('text').attr('class', 'dv-tick').attr('x', x(r.x) + x.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', 'middle').text(shortDate(r.x));
+    });
+  }
+
+  function fillTable(tbl, rows, cols, key, strong) {
+    const tb = tbl.tBodies[0]; tb.replaceChildren();
+    rows.forEach(r => {
+      const tr = tb.insertRow(); tr.dataset.key = key(r);
+      if (strong && strong(r)) tr.className = 'tot';
+      cols.forEach(c => {
+        const td = tr.insertCell(); if (c.num) td.className = 'num';
+        if (c.bar) {
+          const w = document.createElement('div'); w.className = 'dv-cbar';
+          const t = document.createElement('span'); t.className = 'dv-cbar-t';
+          const f = document.createElement('span'); f.className = 'dv-cbar-f'; f.style.width = Math.max(0, Math.min(100, (n(r[c.f]) || 0) * 100)) + '%';
+          t.appendChild(f); const s = document.createElement('span'); s.textContent = fmtPct(r[c.f]); w.append(s, t); td.appendChild(w);
+        } else td.textContent = c.fmt ? c.fmt(r[c.f], r) : (r[c.f] ?? '');
+      });
+    });
+  }
+  function tableGate(id, tbl) {
+    if (dash.data(id).status !== 'ok') { tbl.tBodies[0].replaceChildren(); return false; }
+    return true;
+  }
+  const isTot = r => r.is_total === '1' || r.is_total === 1;
+
+  function fillMarks() {
+    document.querySelectorAll('.dv [data-fmt]').forEach(el => {
+      const d = dash.data(el.dataset.source);
+      if (d.status !== 'ok') return;
+      let row = null;
+      if (el.dataset.row != null) row = d.data[Number(el.dataset.row)];
+      else if (el.dataset.where) { const [k, v] = el.dataset.where.split('='); row = d.data.find(r => String(r[k]) === decodeURIComponent(v)); }
+      el.classList.remove('dash-skeleton');
+      const v = row ? row[el.dataset.field] : null;
+      el.textContent = FMT[el.dataset.fmt](v);
+      if (el.dataset.good) {
+        el.classList.toggle('dv-good', n(v) != null && (el.dataset.good === 'down' ? n(v) < 0 : n(v) > 0));
+        el.classList.toggle('dv-bad', n(v) != null && (el.dataset.good === 'down' ? n(v) > 0 : n(v) < 0));
+      }
+    });
+  }
+
+  const spLabel = r => r.type === 'Consumer' ? (r.category === 'Total' ? 'Consumer meters (total)' : 'Consumer ' + r.category)
+    : r.type === 'DT' ? (r.category === 'Total' ? 'DT meters (total)' : 'DT ' + r.category) : r.category;
+
+  function drawAmisp() {
+    const el = document.getElementById('sp-pct');
+    if (gate('sp_latest', el)) {
+      const rows = dash.data('sp_latest').data.filter(r => AMISP.includes(r.cluster) && (r.category === 'Total' || (r.type !== 'Consumer' && r.type !== 'DT')));
+      const order = [], groups = {};
+      rows.forEach(r => {
+        const lab = spLabel(r);
+        if (!groups[lab]) { groups[lab] = { label: lab, values: {} }; order.push(lab); }
+        groups[lab].values[r.cluster] = { v: n(r.progress_pct), tip: `${fmtNum(r.inst_cum)} of ${fmtNum(r.scope)} (${fmtPct(r.progress_pct)})` };
+      });
+      hbars(el, order.map(k => groups[k]), AMISP, [C[0], C[1]]);
+    }
+    const tbl = document.getElementById('sp-table');
+    if (tableGate('sp_latest', tbl)) {
+      const rows = dash.data('sp_latest').data.filter(r => r.cluster === state.sp);
+      fillTable(tbl, rows, [
+        { f: 'item', fmt: (_v, r) => spLabel(r) }, { f: 'scope', num: 1, fmt: fmtNum }, { f: 'inst_ftd', num: 1, fmt: fmtNum },
+        { f: 'inst_month', num: 1, fmt: fmtNum }, { f: 'inst_cum', num: 1, fmt: fmtNum }, { f: 'progress_pct', num: 1, bar: 1 }
+      ], r => r.item, r => r.category === 'Total');
+    }
+    const dayEl = document.getElementById('sp-day');
+    if (gate('kpi_daily', dayEl)) {
+      const col = 'SP DVVNL consumer installed (day)';
+      const rows = dash.data('kpi_daily').data.filter(r => n(r[col]) != null).map(r => ({ x: r.date, v: { 'Installed': n(r[col]) } }));
+      vbars(dayEl, rows, ['Installed'], [C[0]], 180);
+    }
+  }
+
+  const dtLabel = r => (r.cluster === 'DVVNL' ? 'DVVNL total' : r.cluster) + (r.category === 'Total' ? (r.cluster === 'DVVNL' ? '' : ' total') : ' · ' + r.category.replace('>then', 'Above'));
+
+  function drawDt() {
+    const el = document.getElementById('dt-pct');
+    if (gate('sp_latest', el)) {
+      const order = [], groups = {};
+      dash.data('sp_latest').data.filter(r => r.type === 'DT' && AMISP.includes(r.cluster)).forEach(r => {
+        const lab = r.category === 'Total' ? 'All DT meters' : r.category.replace('>then', 'Above');
+        if (!groups[lab]) { groups[lab] = { label: lab, values: {} }; order.push(lab); }
+        groups[lab].values[r.cluster] = { v: n(r.progress_pct), tip: `${fmtNum(r.inst_cum)} of ${fmtNum(r.scope)} (${fmtPct(r.progress_pct)})` };
+      });
+      hbars(el, order.map(k => groups[k]), AMISP, [C[0], C[1]]);
+    }
+    const dayEl = document.getElementById('dt-day');
+    if (gate('kpi_daily', dayEl)) {
+      const col = 'SP DVVNL DT installed (day)';
+      const rows = dash.data('kpi_daily').data.filter(r => n(r[col]) != null).map(r => ({ x: r.date, v: { 'Installed': n(r[col]) } }));
+      vbars(dayEl, rows, ['Installed'], [C[0]], 180);
+    }
+    const tbl = document.getElementById('dt-table');
+    if (tableGate('sp_latest', tbl)) {
+      fillTable(tbl, dash.data('sp_latest').data.filter(r => r.type === 'DT'), [
+        { f: 'item', fmt: (_v, r) => dtLabel(r) }, { f: 'team', num: 1, fmt: fmtNum }, { f: 'scope', num: 1, fmt: fmtNum },
+        { f: 'stock', num: 1, fmt: fmtNum }, { f: 'indexed', num: 1, fmt: fmtNum }, { f: 'indexing_pct', num: 1, bar: 1 },
+        { f: 'inst_ftd', num: 1, fmt: fmtNum }, { f: 'inst_month', num: 1, fmt: fmtNum }, { f: 'inst_cum', num: 1, fmt: fmtNum },
+        { f: 'commissioned', num: 1, fmt: fmtNum }, { f: 'progress_pct', num: 1, bar: 1 }
+      ], r => r.item, r => r.category === 'Total');
+    }
+  }
+
+  function drawNsc() {
+    const pend = document.getElementById('nsc-pend'), inst = document.getElementById('nsc-inst');
+    const okP = gate('nsc_daily', pend), okI = gate('nsc_daily', inst);
+    if (!okP || !okI) return;
+    const rows = dash.data('nsc_daily').data.filter(r => r.amisp === state.nsc);
+    vbars(pend, rows.filter(r => n(r.total_pending) != null).map(r => ({ x: r.date, v: { 'Within time': n(r.within_time), 'Beyond time': n(r.beyond_time) } })),
+      ['Within time', 'Beyond time'], [C[0], 'var(--cds-chart-status-critical)'], 220);
+    vbars(inst, rows.filter(r => n(r.meters_installed) != null).map(r => ({ x: r.date, v: { 'Installed': n(r.meters_installed) } })),
+      ['Installed'], [C[1]], 220);
+  }
+
+  function drawPriority() {
+    const el = document.getElementById('pr-pct');
+    if (gate('priority_latest', el)) {
+      const order = [], groups = {};
+      dash.data('priority_latest').data.forEach(r => {
+        if (!groups[r.category]) { groups[r.category] = { label: r.category.replace(' Connection', ''), values: {} }; order.push(r.category); }
+        groups[r.category].values[r.amisp] = { v: n(r.pct), tip: `${fmtNum(r.installed)} of ${fmtNum(r.scope)} (${fmtPct(r.pct)})` };
+      });
+      hbars(el, order.map(k => groups[k]), AMISP, [C[0], C[1]]);
+    }
+    const dEl = document.getElementById('pr-day');
+    if (gate('priority_trend', dEl)) {
+      const cats = ['Government Connection', 'Industrial', 'Commercial'];
+      const byDate = d3.rollup(dash.data('priority_trend').data, v => d3.sum(v, r => n(r.installed_ftd) || 0), r => r.data_date, r => r.category);
+      const rows = [...byDate.keys()].sort().map(d => ({ x: d, v: Object.fromEntries(cats.map(c => [c.replace(' Connection', ''), byDate.get(d).get(c) ?? null])) }));
+      vbars(dEl, rows, cats.map(c => c.replace(' Connection', '')), [C[0], C[1], C[2]], 200);
+    }
+    const tbl = document.getElementById('pr-table');
+    if (tableGate('priority_latest', tbl)) {
+      fillTable(tbl, dash.data('priority_latest').data, [
+        { f: 'category' }, { f: 'amisp' }, { f: 'scope', num: 1, fmt: fmtNum }, { f: 'installed', num: 1, fmt: fmtNum },
+        { f: 'pct', num: 1, bar: 1 }, { f: 'pending', num: 1, fmt: fmtNum }, { f: 'installed_ftd', num: 1, fmt: fmtNum },
+        { f: 'installed_month', num: 1, fmt: fmtNum }
+      ], r => encodeURIComponent(r.category) + ',' + encodeURIComponent(r.amisp));
+    }
+  }
+
+  function drawEesl() {
+    const tbl = document.getElementById('eesl-table');
+    if (!tableGate('eesl_latest', tbl)) return;
+    fillTable(tbl, dash.data('eesl_latest').data, [
+      { f: 'circle' }, { f: 'scope_excl_pdc', num: 1, fmt: fmtNum }, { f: 'progress_cum', num: 1, fmt: fmtNum }, { f: 'pct', num: 1, bar: 1 },
+      { f: 'progress_month', num: 1, fmt: fmtNum }, { f: 'progress_ftd', num: 1, fmt: fmtNum }, { f: 'teams_ftd', num: 1, fmt: fmtNum },
+      { f: 'pdc_count', num: 1, fmt: fmtNum }, { f: 'consumer_denial', num: 1, fmt: fmtNum }, { f: 'balance', num: 1, fmt: fmtNum }
+    ], r => r.circle, isTot);
+  }
+
+  function drawBilling() {
+    const tbl = document.getElementById('bl-table');
+    if (tableGate('billing_latest', tbl)) {
+      fillTable(tbl, dash.data('billing_latest').data, [
+        { f: 'code', fmt: (_v, r) => r.label }, { f: 'billable', num: 1, fmt: fmtNum }, { f: 'reads', num: 1, fmt: fmtNum },
+        { f: 'read_pct', num: 1, bar: 1 }, { f: 'read_gap', num: 1, fmt: fmtNum }, { f: 'bills', num: 1, fmt: fmtNum },
+        { f: 'billed_pct', num: 1, bar: 1 }, { f: 'exceptions', num: 1, fmt: fmtNum }, { f: 'read_pending', num: 1, fmt: fmtNum },
+        { f: 'sms_sent', num: 1, fmt: fmtNum }, { f: 'sms_not_sent', num: 1, fmt: fmtNum }, { f: 'sms_pct', num: 1, bar: 1 }
+      ], r => r.code, isTot);
+    }
+    const ctbl = document.getElementById('col-table');
+    if (tableGate('collection_latest', ctbl)) {
+      fillTable(ctbl, dash.data('collection_latest').data, [
+        { f: 'code', fmt: (_v, r) => r.label }, { f: 'assessment_cr', num: 1, fmt: fmtCr }, { f: 'paid_count', num: 1, fmt: fmtNum },
+        { f: 'paid_amt_cr', num: 1, fmt: fmtCr }, { f: 'paid_pct', num: 1, bar: 1 }
+      ], r => r.code, isTot);
+    }
+    const dEl = document.getElementById('bl-day');
+    if (gate('bills_daily', dEl)) {
+      const by = d3.group(dash.data('bills_daily').data, r => r.as_of_date);
+      const rows = [...by.keys()].sort().map(d => ({ x: d, v: Object.fromEntries(by.get(d).map(r => [r.code === 'DV01' ? 'DV01 (GMR)' : 'DV02 (GENUS)', n(r.new_bills)])) }));
+      vbars(dEl, rows, ['DV01 (GMR)', 'DV02 (GENUS)'], [C[0], C[1]], 200);
+    }
+  }
+
+  function drawNetmeter() {
+    const tbl = document.getElementById('nm-table');
+    if (!tableGate('netmeter_latest', tbl)) return;
+    fillTable(tbl, dash.data('netmeter_latest').data, [
+      { f: 'zone' }, { f: 'connections', num: 1, fmt: fmtNum }, { f: 'billed', num: 1, fmt: fmtNum }, { f: 'billed_pct', num: 1, bar: 1 },
+      { f: 'unbilled', num: 1, fmt: fmtNum }, { f: 'error', num: 1, fmt: fmtNum }, { f: 'pending', num: 1, fmt: fmtNum },
+      { f: 'offcycle_bills', num: 1, fmt: fmtNum }, { f: 'sa_inactive', num: 1, fmt: fmtNum }
+    ], r => r.zone, isTot);
+  }
+
+  const DRAW = { amisp: drawAmisp, dt: drawDt, nsc: drawNsc, priority: drawPriority, eesl: drawEesl, billing: drawBilling, netmeter: drawNetmeter };
+  function render() { fillMarks(); DRAW[state.tab](); }
+
+  function showTab(id, focus) {
+    if (!TABS.includes(id)) return;
+    state.tab = id;
+    TABS.forEach(t => {
+      document.getElementById(t).hidden = t !== id;
+      const b = document.getElementById('tab-' + t);
+      b.setAttribute('aria-selected', String(t === id));
+      b.tabIndex = t === id ? 0 : -1;
+    });
+    dash.setLink(id);
+    DRAW[id]();
+    if (focus) document.getElementById('tab-' + id).focus();
+  }
+  const tabs = document.getElementById('tabs');
+  tabs.addEventListener('click', ev => { const b = ev.target.closest('button[data-tab]'); if (b) showTab(b.dataset.tab); });
+  tabs.addEventListener('keydown', ev => {
+    const i = TABS.indexOf(state.tab);
+    if (ev.key === 'ArrowRight') { ev.preventDefault(); showTab(TABS[(i + 1) % TABS.length], true); }
+    if (ev.key === 'ArrowLeft') { ev.preventDefault(); showTab(TABS[(i + TABS.length - 1) % TABS.length], true); }
+  });
+  document.getElementById('tiles').addEventListener('click', ev => {
+    const t = ev.target.closest('[data-tab]'); if (!t) return;
+    showTab(t.dataset.tab);
+    tabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  function pills(id, key, redraw) {
+    const g = document.getElementById(id);
+    g.addEventListener('click', ev => {
+      const b = ev.target.closest('button'); if (!b) return;
+      state[key] = b.dataset.v;
+      g.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      redraw();
+    });
+  }
+  pills('sp-pills', 'sp', drawAmisp);
+  pills('nsc-pills', 'nsc', drawNsc);
+
+  const start = location.hash.slice(1);
+  if (TABS.includes(start)) showTab(start);
+  dash.onData(render);
+})();
+</script>
+
+</div>
+<p class="site-foot">Data updated 22.10.2026 14:55 IST from the daily DVVNL reports.</p>
+</body>
+</html>
