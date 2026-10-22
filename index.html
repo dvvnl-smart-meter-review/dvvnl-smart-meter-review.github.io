@@ -7,10 +7,10 @@
 <title>DVVNL Smart Meter Review</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@400&display=swap">
-<link rel="stylesheet" href="site.css?v=202610221509">
+<link rel="stylesheet" href="site.css?v=202610221639">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script>window.DASH_DATASETS = ['billing_latest', 'billing_trend', 'collection_latest', 'eesl_latest', 'kpi_daily', 'netmeter_latest', 'nsc_daily', 'priority_latest', 'priority_trend', 'sp_latest']; window.DASH_VERSION = "202610221509";</script>
-<script src="dash-shim.js?v=202610221509"></script>
+<script>window.DASH_DATASETS = ['billing_latest', 'billing_trend', 'collection_latest', 'comm_latest', 'comm_trend', 'division_collection', 'eesl_latest', 'kpi_daily', 'netmeter_latest', 'noncomm_daily', 'nsc_daily', 'priority_latest', 'priority_trend', 'sp_latest', 'zone_collection']; window.DASH_VERSION = "202610221639";</script>
+<script src="dash-shim.js?v=202610221639"></script>
 </head>
 <body>
 <div id="dash-root">
@@ -58,6 +58,9 @@
 .dv-cbar{display:flex;align-items:center;gap:var(--cds-gap-sm);justify-content:flex-end}
 .dv-cbar-t{display:inline-block;width:4.5rem;height:.5rem;border-radius:999px;background:var(--cds-chart-grid);overflow:hidden;flex:none}
 .dv-cbar-f{display:block;height:100%;border-radius:999px;background:var(--cds-chart-muted)}
+.dv-search{font:inherit;font-size:var(--cds-font-size-caption);color:var(--color-fg);background:var(--color-bg);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-xs) var(--cds-pad-sm);max-width:20rem;width:100%;box-sizing:border-box}
+.dv .dv-t td.dv-flag{color:var(--color-bad)}
+.dv-chart path.dv-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dv-fail{display:flex;align-items:center;justify-content:center;gap:var(--cds-gap-xs);min-height:inherit;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
 .dv-fail::before{content:"";width:.375rem;height:.375rem;border-radius:50%;background:var(--color-bad)}
 [data-dash-source-state=empty]{color:transparent}
@@ -87,6 +90,16 @@
       <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=dt_cum" data-fmt="num">—</span>
       <span class="dv-sub"><span data-source="headline" data-field="value" data-where="k=dt_pct" data-fmt="pct">—</span> of scope · +<span data-source="headline" data-field="value" data-where="k=dt_day" data-fmt="num">—</span> on the day</span>
     </button>
+    <button type="button" class="dv-tile" data-tab="comm" id="tile-comm">
+      <span class="dv-lbl-t">DT meters communicating</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=dt_comm_pct" data-fmt="pct">—</span>
+      <span class="dv-sub">of installed · feeder <span data-source="headline" data-field="value" data-where="k=fd_comm_pct" data-fmt="pct">—</span> · <span data-source="headline" data-field="date" data-where="k=dt_comm_pct" data-fmt="date">—</span></span>
+    </button>
+    <button type="button" class="dv-tile" data-tab="noncomm" id="tile-noncomm">
+      <span class="dv-lbl-t">Non communicating meters</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=non_comm" data-fmt="num">—</span>
+      <span class="dv-sub">never <span data-source="headline" data-field="value" data-where="k=never_comm" data-fmt="num">—</span> · unsync <span data-source="headline" data-field="value" data-where="k=unsync" data-fmt="num">—</span> · <span data-source="headline" data-field="date" data-where="k=non_comm" data-fmt="date">—</span></span>
+    </button>
     <button type="button" class="dv-tile" data-tab="nsc" id="tile-nsc">
       <span class="dv-lbl-t">NSC pendency (smart meter)</span>
       <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=nsc_total" data-fmt="num">—</span>
@@ -109,6 +122,11 @@
       <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=bl_bills" data-fmt="num">—</span>
       <span class="dv-sub"><span data-source="headline" data-field="value" data-where="k=bl_pct" data-fmt="pct">—</span> billed · SMS <span data-source="headline" data-field="value" data-where="k=sms_pct" data-fmt="pct">—</span> · <span data-source="headline" data-field="date" data-where="k=bl_bills" data-fmt="date">—</span></span>
     </button>
+    <button type="button" class="dv-tile" data-tab="divcol" id="tile-divcol">
+      <span class="dv-lbl-t">Collection efficiency (division report)</span>
+      <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=ce" data-fmt="pct">—</span>
+      <span class="dv-sub">turn-up <span data-source="headline" data-field="value" data-where="k=turnup" data-fmt="pct">—</span> · <span data-source="headline" data-field="date" data-where="k=ce" data-fmt="date">—</span></span>
+    </button>
     <button type="button" class="dv-tile" data-tab="netmeter" id="tile-netmeter">
       <span class="dv-lbl-t">Smart net meters billed</span>
       <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=nm_pct" data-fmt="pct">—</span>
@@ -119,10 +137,13 @@
   <div class="dv-tabs" role="tablist" aria-label="Report" id="tabs">
     <button type="button" role="tab" id="tab-amisp" data-tab="amisp" aria-controls="amisp" aria-selected="true">AMISP progress</button>
     <button type="button" role="tab" id="tab-dt" data-tab="dt" aria-controls="dt" aria-selected="false">DT meter installation</button>
+    <button type="button" role="tab" id="tab-comm" data-tab="comm" aria-controls="comm" aria-selected="false">Feeder &amp; DT communication</button>
+    <button type="button" role="tab" id="tab-noncomm" data-tab="noncomm" aria-controls="noncomm" aria-selected="false">Non / never communication</button>
     <button type="button" role="tab" id="tab-nsc" data-tab="nsc" aria-controls="nsc" aria-selected="false">New connection</button>
     <button type="button" role="tab" id="tab-priority" data-tab="priority" aria-controls="priority" aria-selected="false">Priority consumer</button>
     <button type="button" role="tab" id="tab-eesl" data-tab="eesl" aria-controls="eesl" aria-selected="false">EESL replacement</button>
     <button type="button" role="tab" id="tab-billing" data-tab="billing" aria-controls="billing" aria-selected="false">Billing and SMS</button>
+    <button type="button" role="tab" id="tab-divcol" data-tab="divcol" aria-controls="divcol" aria-selected="false">Division collection</button>
     <button type="button" role="tab" id="tab-netmeter" data-tab="netmeter" aria-controls="netmeter" aria-selected="false">Net meter billing</button>
   </div>
 
@@ -198,6 +219,58 @@
           </tr></thead>
           <tbody></tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="comm" role="tabpanel" aria-labelledby="tab-comm" hidden>
+    <h2>Feeder and DT meter communication</h2>
+    <p class="dv-sec-sub">As on <span data-source="comm_latest" data-field="as_on" data-row="0" data-fmt="date">—</span>, from the Feeder &amp; DT commissioning report: communicating meters (column 13) and communication % of meters installed (column 19).</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="comm-table-card">
+        <h3>Communicating meters by AMISP</h3>
+        <div class="dv-tw">
+          <table class="dv-t" id="comm-table" data-source="comm_latest" data-row-key="item">
+            <thead><tr>
+              <th data-field="item">Meter type and AMISP</th>
+              <th class="num" data-field="communicating">Communicating</th>
+              <th class="num" data-field="comm_pct_installed">Communication % of installed</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dv-card" id="comm-trend-card">
+        <h3>Communication % of installed over time, DVVNL</h3>
+        <p class="dv-note">Each dated block of the commissioning report.</p>
+        <div class="dv-chart dash-skeleton" id="comm-trend" data-source="comm_trend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dv-sec" id="noncomm" role="tabpanel" aria-labelledby="tab-noncomm" hidden>
+    <h2>Non communicating, never communicated and unsync meters</h2>
+    <p class="dv-sec-sub">Status as on <span data-source="headline" data-field="date" data-where="k=non_comm" data-fmt="date">—</span>.</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="nc-table-card">
+        <h3>By AMISP</h3>
+        <div class="dv-tw">
+          <table class="dv-t" id="nc-table" data-source="noncomm_daily" data-row-key="as_on,amisp">
+            <thead><tr>
+              <th data-field="amisp">AMISP</th>
+              <th class="num" data-field="non_comm">Non communicating</th>
+              <th class="num" data-field="never_comm">Never communicated</th>
+              <th class="num" data-field="unsync">Unsync</th>
+              <th class="num" data-field="total">Total</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dv-card" id="nc-trend-card">
+        <h3>DVVNL by day</h3>
+        <p class="dv-note">Builds up as daily reports are added.</p>
+        <div class="dv-chart dash-skeleton" id="nc-trend" data-source="noncomm_daily"></div>
       </div>
     </div>
   </section>
@@ -335,6 +408,54 @@
     </div>
   </section>
 
+  <section class="dv-sec" id="divcol" role="tabpanel" aria-labelledby="tab-divcol" hidden>
+    <h2>Division-wise billing, turn-up and collection</h2>
+    <p class="dv-sec-sub">Report dated <span data-source="zone_collection" data-field="report_date" data-row="0" data-fmt="date">—</span>. Turn-up % = paid count / billed count. Collection efficiency = payment / current assessment. Lowest efficiency first. Figures as in the report; a negative assessment gives a negative efficiency.</p>
+    <div class="dv-grid">
+      <div class="dv-card" id="zone-table-card">
+        <h3>Zone summary</h3>
+        <div class="dv-tw">
+          <table class="dv-t" id="zone-table" data-source="zone_collection" data-row-key="zone">
+            <thead><tr>
+              <th data-field="zone">Zone</th>
+              <th class="num" data-field="billed">Billed count</th>
+              <th class="num" data-field="paid_count">Paid count</th>
+              <th class="num" data-field="assessment_cr">Current assessment (Cr)</th>
+              <th class="num" data-field="paid_amt_cr">Payment (Cr)</th>
+              <th class="num" data-field="turnup_pct">Turn-up %</th>
+              <th class="num" data-field="ce_pct">Collection efficiency</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dv-card" id="zone-ce-card">
+        <h3>Collection efficiency by zone</h3>
+        <div class="dv-chart dash-skeleton" id="zone-ce" data-source="zone_collection"></div>
+      </div>
+    </div>
+    <div class="dv-card" id="div-table-card">
+      <h3>Division-wise, lowest collection efficiency first</h3>
+      <input type="search" id="div-search" class="dv-search" placeholder="Search division, circle or zone" aria-label="Search divisions">
+      <div class="dv-tw">
+        <table class="dv-t" id="div-table" data-source="division_collection" data-row-key="division">
+          <thead><tr>
+            <th data-field="division">Division</th>
+            <th data-field="circle">Circle</th>
+            <th data-field="zone">Zone</th>
+            <th class="num" data-field="billed">Billed count</th>
+            <th class="num" data-field="paid_count">Paid count</th>
+            <th class="num" data-field="assessment_cr">Current assessment (Cr)</th>
+            <th class="num" data-field="paid_amt_cr">Payment (Cr)</th>
+            <th class="num" data-field="turnup_pct">Turn-up %</th>
+            <th class="num" data-field="ce_pct">Collection efficiency</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section class="dv-sec" id="netmeter" role="tabpanel" aria-labelledby="tab-netmeter" hidden>
     <h2>Smart net-meter billing</h2>
     <p class="dv-sec-sub">Status dated <span data-source="netmeter_latest" data-field="report_date" data-row="0" data-fmt="date">—</span>.</p>
@@ -374,7 +495,10 @@ dash.calc('headline', {
       eesl_pct: 'EESL % done',
       nm_pct: 'Net meter billed %', nm_conn: 'Net meter connections',
       eesl_cum: 'EESL replaced (cum)', eesl_day: 'EESL replaced (day)', eesl_bal: 'EESL balance',
-      bl_bills: 'DVVNL bills generated', bl_pct: 'DVVNL billed %', sms_pct: 'DVVNL bill SMS %'
+      bl_bills: 'DVVNL bills generated', bl_pct: 'DVVNL billed %', sms_pct: 'DVVNL bill SMS %',
+      ce: 'Division report: collection efficiency %', turnup: 'Division report: turn-up %',
+      fd_comm_pct: 'Feeder communication % of installed', dt_comm_pct: 'DT communication % of installed',
+      non_comm: 'Non communicating meters', never_comm: 'Never communicated meters', unsync: 'Unsync meters'
     };
     return Object.entries(cols).map(([k, col]) => {
       const pts = kpi_daily.filter(r => r[col] !== '' && r[col] != null).map(r => ({ date: r.date, v: Number(r[col]) }));
@@ -415,7 +539,7 @@ dash.calc('bills_daily', {
   const fmtSigned = v => n(v) == null ? '—' : (n(v) > 0 ? '+' : '') + n(v).toLocaleString('en-IN');
   const fmtTick = v => Math.abs(v) >= 100000 ? (v / 100000).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + 'L' : v.toLocaleString('en-IN');
   const FMT = { num: fmtNum, pct: fmtPct, date: fmtDate, signed: fmtSigned };
-  const TABS = ['amisp', 'dt', 'nsc', 'priority', 'eesl', 'billing', 'netmeter'];
+  const TABS = ['amisp', 'dt', 'comm', 'noncomm', 'nsc', 'priority', 'eesl', 'billing', 'divcol', 'netmeter'];
   const state = { sp: 'DVVNL', nsc: 'DVVNL', tab: 'amisp' };
 
   function fail(el) { el.replaceChildren(); const d = document.createElement('div'); d.className = 'dv-fail'; d.textContent = 'Failed to load'; el.appendChild(d); }
@@ -515,6 +639,47 @@ dash.calc('bills_daily', {
       if ((rows.length - 1 - i) % every) return;
       svg.append('text').attr('class', 'dv-tick').attr('x', x(r.x) + x.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', 'middle').text(shortDate(r.x));
     });
+  }
+
+  // Line chart of shares (0-1) over dates. seriesMap: {name: [{x: 'YYYY-MM-DD', v}]}
+  function lines(el, seriesMap, names, colors, H) {
+    el.replaceChildren(); legend(el, names, colors);
+    const all = names.flatMap(nm => seriesMap[nm] || []);
+    if (!all.length) return;
+    H = H || 220;
+    const W = Math.max(280, el.clientWidth), m = { t: 10, r: 10, b: 22 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('height', H);
+    const dt = d => new Date(d);
+    let xs = d3.extent(all, p => dt(p.x));
+    if (+xs[0] === +xs[1]) xs = [d3.utcDay.offset(xs[0], -1), d3.utcDay.offset(xs[1], 1)];
+    const lo = d3.min(all, p => p.v), hi = d3.max(all, p => p.v);
+    const y = d3.scaleLinear([Math.max(0, lo - 0.05), Math.min(1, hi + 0.02)], [H - m.b, m.t]).nice();
+    const pf = d3.format('.0%'), ticks = y.ticks(4);
+    m.l = measure(svg, 'dv-tick', ticks.map(pf)) + 8;
+    const x = d3.scaleUtc(xs, [m.l, W - m.r]);
+    ticks.forEach(t => {
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(t)).attr('y2', y(t)).style('stroke', 'var(--cds-chart-grid)');
+      svg.append('text').attr('class', 'dv-tick').attr('x', m.l - 6).attr('y', y(t)).attr('dy', '0.35em').attr('text-anchor', 'end').text(pf(t));
+    });
+    x.ticks(Math.max(2, Math.floor((W - m.l) / 80))).forEach(t => {
+      svg.append('text').attr('class', 'dv-tick').attr('x', x(t)).attr('y', H - 6).attr('text-anchor', 'middle').text(d3.utcFormat('%-d %b')(t));
+    });
+    names.forEach((nm, i) => {
+      const pts = seriesMap[nm] || [];
+      svg.append('path').attr('class', 'dv-line').style('stroke', colors[i]).attr('d', d3.line(p => x(dt(p.x)), p => y(p.v))(pts));
+      const last = pts[pts.length - 1];
+      if (last) svg.append('circle').attr('cx', x(dt(last.x))).attr('cy', y(last.v)).attr('r', 3.5).style('fill', colors[i]);
+    });
+    const dates = [...new Set(all.map(p => p.x))].sort();
+    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--cds-chart-axis)').style('display', 'none');
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).style('fill', 'transparent')
+      .on('mousemove', ev => {
+        const [mx] = d3.pointer(ev), t = x.invert(mx);
+        const d = dates.reduce((a, b) => Math.abs(dt(b) - t) < Math.abs(dt(a) - t) ? b : a);
+        rule.attr('x1', x(dt(d))).attr('x2', x(dt(d))).style('display', null);
+        showTip(el, ev, fmtDate(d), names.map((nm, i) => { const p = (seriesMap[nm] || []).find(q => q.x === d); return [colors[i], nm + ' ', p ? fmtPct(p.v) : '—']; }));
+      })
+      .on('mouseleave', () => { rule.style('display', 'none'); hideTip(el); });
   }
 
   function fillTable(tbl, rows, cols, key, strong) {
@@ -617,6 +782,79 @@ dash.calc('bills_daily', {
     }
   }
 
+  function drawComm() {
+    const tbl = document.getElementById('comm-table');
+    if (tableGate('comm_latest', tbl)) {
+      fillTable(tbl, dash.data('comm_latest').data, [
+        { f: 'item', fmt: (_v, r) => (r.head === 'DT' ? 'DT meters' : 'Feeder meters') + ' · ' + (r.amisp === 'DVVNL' ? 'DVVNL total' : r.amisp) },
+        { f: 'communicating', num: 1, fmt: fmtNum }, { f: 'comm_pct_installed', num: 1, bar: 1 }
+      ], r => r.item, r => r.amisp === 'DVVNL');
+    }
+    const el = document.getElementById('comm-trend');
+    if (gate('comm_trend', el)) {
+      const by = { 'Feeder meters': [], 'DT meters': [] };
+      dash.data('comm_trend').data.forEach(r => {
+        if (n(r.comm_pct_installed) == null) return;
+        by[r.head === 'DT' ? 'DT meters' : 'Feeder meters'].push({ x: r.as_on, v: n(r.comm_pct_installed) });
+      });
+      lines(el, by, ['Feeder meters', 'DT meters'], [C[0], C[1]], 240);
+    }
+  }
+
+  function drawNoncomm() {
+    const tbl = document.getElementById('nc-table');
+    if (tableGate('noncomm_daily', tbl)) {
+      const rows = dash.data('noncomm_daily').data;
+      const last = rows.length ? rows[rows.length - 1].as_on : null;
+      fillTable(tbl, rows.filter(r => r.as_on === last), [
+        { f: 'amisp', fmt: v => v === 'DVVNL' ? 'DVVNL total' : v }, { f: 'non_comm', num: 1, fmt: fmtNum },
+        { f: 'never_comm', num: 1, fmt: fmtNum }, { f: 'unsync', num: 1, fmt: fmtNum }, { f: 'total', num: 1, fmt: fmtNum }
+      ], r => encodeURIComponent(r.as_on) + ',' + encodeURIComponent(r.amisp), r => r.amisp === 'DVVNL');
+    }
+    const el = document.getElementById('nc-trend');
+    if (gate('noncomm_daily', el)) {
+      const rows = dash.data('noncomm_daily').data.filter(r => r.amisp === 'DVVNL')
+        .map(r => ({ x: r.as_on, v: { 'Non communicating': n(r.non_comm), 'Never communicated': n(r.never_comm), 'Unsync': n(r.unsync) } }));
+      vbars(el, rows, ['Non communicating', 'Never communicated', 'Unsync'], [C[0], 'var(--cds-chart-status-critical)', C[1]], 220);
+    }
+  }
+
+  const flagCe = v => n(v) != null && (n(v) < 0 || n(v) > 1);  // below 0 or above 100%: a data issue in the report
+  const colCols = [
+    { f: 'billed', num: 1, fmt: fmtNum }, { f: 'paid_count', num: 1, fmt: fmtNum },
+    { f: 'assessment_cr', num: 1, fmt: fmtCr }, { f: 'paid_amt_cr', num: 1, fmt: fmtCr },
+    { f: 'turnup_pct', num: 1, bar: 1 }, { f: 'ce_pct', num: 1, bar: 1 }
+  ];
+  function markFlags(tbl, rows) {
+    const i = [...tbl.tHead.rows[0].cells].findIndex(th => th.dataset.field === 'ce_pct');
+    [...tbl.tBodies[0].rows].forEach((tr, k) => { if (flagCe(rows[k].ce_pct)) tr.cells[i].classList.add('dv-flag'); });
+  }
+
+  function drawDivcol() {
+    const zt = document.getElementById('zone-table');
+    if (tableGate('zone_collection', zt)) {
+      const rows = dash.data('zone_collection').data;
+      fillTable(zt, rows, [{ f: 'zone', fmt: v => v === 'DVVNL' ? 'DVVNL total' : v }, ...colCols], r => r.zone, r => r.level === 'total');
+      markFlags(zt, rows);
+    }
+    const ze = document.getElementById('zone-ce');
+    if (gate('zone_collection', ze)) {
+      const groups = dash.data('zone_collection').data.map(r => ({
+        label: r.zone === 'DVVNL' ? 'DVVNL total' : r.zone,
+        values: { 'Collection efficiency': { v: n(r.ce_pct), tip: `${fmtCr(r.paid_amt_cr)} of ${fmtCr(r.assessment_cr)} Cr (${fmtPct(r.ce_pct)})` } }
+      }));
+      hbars(ze, groups, ['Collection efficiency'], [C[0]]);
+    }
+    const dt = document.getElementById('div-table');
+    if (tableGate('division_collection', dt)) {
+      const q = document.getElementById('div-search').value.trim().toLowerCase();
+      const rows = dash.data('division_collection').data.filter(r => !q || [r.division, r.circle, r.zone].some(s => String(s).toLowerCase().includes(q)));
+      fillTable(dt, rows, [{ f: 'division' }, { f: 'circle' }, { f: 'zone' }, ...colCols], r => r.division);
+      markFlags(dt, rows);
+    }
+  }
+  document.getElementById('div-search').addEventListener('input', () => drawDivcol());
+
   function drawNsc() {
     const pend = document.getElementById('nsc-pend'), inst = document.getElementById('nsc-inst');
     const okP = gate('nsc_daily', pend), okI = gate('nsc_daily', inst);
@@ -700,7 +938,7 @@ dash.calc('bills_daily', {
     ], r => r.zone, isTot);
   }
 
-  const DRAW = { amisp: drawAmisp, dt: drawDt, nsc: drawNsc, priority: drawPriority, eesl: drawEesl, billing: drawBilling, netmeter: drawNetmeter };
+  const DRAW = { amisp: drawAmisp, dt: drawDt, comm: drawComm, noncomm: drawNoncomm, divcol: drawDivcol, nsc: drawNsc, priority: drawPriority, eesl: drawEesl, billing: drawBilling, netmeter: drawNetmeter };
   function render() { fillMarks(); DRAW[state.tab](); }
 
   function showTab(id, focus) {
@@ -748,6 +986,6 @@ dash.calc('bills_daily', {
 </script>
 
 </div>
-<p class="site-foot">Data updated 22.10.2026 15:09 IST from the daily DVVNL reports.</p>
+<p class="site-foot">Data updated 22.10.2026 16:39 IST from the daily DVVNL reports.</p>
 </body>
 </html>
