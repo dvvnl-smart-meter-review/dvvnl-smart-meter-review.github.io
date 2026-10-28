@@ -59,12 +59,6 @@ data_date,category,amisp,installed,installed_ftd
 2026-10-17,Government Connection,GMR,12408,9
 2026-10-17,Industrial,GENUS,2095,2
 2026-10-17,Industrial,GMR,13773,21
-2026-10-18,Commercial,GENUS,49271,115
-2026-10-18,Commercial,GMR,113508,22
-2026-10-18,Government Connection,GENUS,9247,109
-2026-10-18,Government Connection,GMR,12410,2
-2026-10-18,Industrial,GENUS,2113,18
-2026-10-18,Industrial,GMR,13776,3
 2026-10-19,Commercial,GENUS,49271,0
 2026-10-19,Commercial,GMR,113555,47
 2026-10-19,Government Connection,GENUS,9247,0
@@ -113,3 +107,15 @@ data_date,category,amisp,installed,installed_ftd
 2026-10-26,Government Connection,GMR,12567,24
 2026-10-26,Industrial,GENUS,2177,0
 2026-10-26,Industrial,GMR,13890,6
+2026-10-27,Commercial,GENUS,49760,16
+2026-10-27,Commercial,GENUS,49760,16
+2026-10-27,Commercial,GMR,114150,89
+2026-10-27,Commercial,GMR,114150,89
+2026-10-27,Government Connection,GENUS,9550,2
+2026-10-27,Government Connection,GENUS,9550,2
+2026-10-27,Government Connection,GMR,12579,12
+2026-10-27,Government Connection,GMR,12579,12
+2026-10-27,Industrial,GENUS,2178,1
+2026-10-27,Industrial,GENUS,2178,1
+2026-10-27,Industrial,GMR,13913,23
+2026-10-27,Industrial,GMR,13913,23
