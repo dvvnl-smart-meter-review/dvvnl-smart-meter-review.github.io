@@ -7,10 +7,10 @@
 <title>DVVNL Smart Meter Review</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&family=Source+Serif+4:wght@400&display=swap">
-<link rel="stylesheet" href="site.css?v=202611071105">
+<link rel="stylesheet" href="site.css?v=202611071137">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script>window.DASH_DATASETS = ['billing_latest', 'billing_trend', 'collection_latest', 'comm_latest', 'comm_trend', 'division_collection', 'eesl_latest', 'kpi_daily', 'netmeter_latest', 'noncomm_daily', 'nsc_daily', 'priority_latest', 'priority_trend', 'sp_latest', 'zone_collection']; window.DASH_VERSION = "202611071105";</script>
-<script src="dash-shim.js?v=202611071105"></script>
+<script>window.DASH_DATASETS = ['billing_latest', 'billing_trend', 'collection_latest', 'comm_latest', 'comm_trend', 'division_collection', 'eesl_latest', 'kpi_daily', 'netmeter_latest', 'noncomm_daily', 'nsc_daily', 'priority_latest', 'priority_trend', 'sp_latest', 'zone_collection']; window.DASH_VERSION = "202611071137";</script>
+<script src="dash-shim.js?v=202611071137"></script>
 </head>
 <body>
 <div id="dash-root">
@@ -118,7 +118,7 @@
       <span class="dv-sub">Balance <span data-source="headline" data-field="value" data-where="k=eesl_bal" data-fmt="num">—</span></span>
     </button>
     <button type="button" class="dv-tile" data-tab="billing" id="tile-billing">
-      <span class="dv-lbl-t">Smart meter bills generated (Oct)</span>
+      <span class="dv-lbl-t">Smart meter bills generated (current cycle)</span>
       <span class="dv-big dash-skeleton" data-source="headline" data-field="value" data-where="k=bl_bills" data-fmt="num">—</span>
       <span class="dv-sub"><span data-source="headline" data-field="value" data-where="k=bl_pct" data-fmt="pct">—</span> billed · SMS <span data-source="headline" data-field="value" data-where="k=sms_pct" data-fmt="pct">—</span> · <span data-source="headline" data-field="date" data-where="k=bl_bills" data-fmt="date">—</span></span>
     </button>
@@ -359,7 +359,7 @@
 
   <section class="dv-sec" id="billing" role="tabpanel" aria-labelledby="tab-billing" hidden>
     <h2>Smart meter billing and bill SMS</h2>
-    <p class="dv-sec-sub">October billing, month to date, up to <span data-source="billing_latest" data-field="as_of_date" data-row="0" data-fmt="date">—</span>. DV01 is GMR, DV02 is GENUS. Billable base is the commissioned smart meters with a billable read on 1 October.</p>
+    <p class="dv-sec-sub">Current billing cycle, month to date, up to <span data-source="billing_latest" data-field="as_of_date" data-row="0" data-fmt="date">—</span>. DV01 is GMR, DV02 is GENUS. Billable base is the commissioned smart meters with a billable read at the start of the cycle.</p>
     <div class="dv-card" id="bl-table-card">
       <h3>Reads, bills and SMS</h3>
       <p class="dv-note">Read % = reads received / billable. Billed % = bills / reads. SMS % = bill SMS sent / bills.</p>
@@ -386,7 +386,7 @@
     <div class="dv-grid">
       <div class="dv-card" id="bl-day-card">
         <h3>Bills generated per day</h3>
-        <p class="dv-note">Increase in month-to-date bills from one report to the next. Builds up as daily reports are added.</p>
+        <p class="dv-note">Increase in month-to-date bills from one report to the next, within a billing cycle.</p>
         <div class="dv-chart dash-skeleton" id="bl-day" data-source="bills_daily"></div>
       </div>
       <div class="dv-card" id="col-table-card">
@@ -518,7 +518,9 @@ dash.calc('bills_daily', {
       const rows = billing_trend.filter(r => r.code === code).sort((a, b) => a.as_of_date < b.as_of_date ? -1 : 1);
       rows.forEach((r, i) => {
         if (i === 0) return;
-        out.push({ as_of_date: r.as_of_date, code, new_bills: Number(r.bills) - Number(rows[i - 1].bills) });
+        const added = Number(r.bills) - Number(rows[i - 1].bills);
+        if (added < 0) return;  // a new billing cycle restarts the month-to-date count
+        out.push({ as_of_date: r.as_of_date, code, new_bills: added });
       });
     });
     return out;
@@ -986,6 +988,6 @@ dash.calc('bills_daily', {
 </script>
 
 </div>
-<p class="site-foot">Data updated 07.11.2026 11:05 IST from the daily DVVNL reports.</p>
+<p class="site-foot">Data updated 07.11.2026 11:37 IST from the daily DVVNL reports.</p>
 </body>
 </html>
